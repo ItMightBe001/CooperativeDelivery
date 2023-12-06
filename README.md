@@ -1,6 +1,6 @@
 # Cooperative Delivery
 
-This project provides the main code for the IEEE ICDE 2024 Round 2 submission 1548 entitled *Cooperative Air-Ground Instant Delivery by UAVs and Crowdsourced Taxis*.
+This project provides the main code for the IEEE ICDE 2024 Second Round submission 1548 entitled *Cooperative Air-Ground Instant Delivery by UAVs and Crowdsourced Taxis*.
 ***
 
 **Highlighted Features**
@@ -9,8 +9,15 @@ This project provides the main code for the IEEE ICDE 2024 Round 2 submission 15
 - A heuristic schedule algorithm is designed to improve the delivery efficiency.
 
 
-*cooperation.py* achieves the cooperative delivery process of UAVs and taxis.
+**Datasets**
+- The historical delivery data is available at [Alibaba Tianchi], which is released by Yi Ding et al. and Yu Yang et al.
+- The taxi trajectory data is available at [Github].
+- The contextual data is collected from [Time And Date] and [Open Street Map]
 
-```python
+We only submit the core cooperation algorithm code (*cooperation.py*), other data processing codes will be submitted if requested.
 
-```
+
+[Alibaba Tianchi]:https://tianchi.aliyun.com/dataset/76359
+[GitHub]:https://github.com/cbdog94/STL
+[Time And Date]:https://www.timeanddate.com/weather/china/shanghai
+[Open Street Map]:https://www.openstreetmap.org/
