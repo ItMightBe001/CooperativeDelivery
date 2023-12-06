@@ -14,7 +14,7 @@ This project provides the main code for the IEEE ICDE 2024 Second Round Submissi
 - The taxi trajectory data is available at [Github].
 - The contextual data is collected from [Time And Date] and [Open Street Map]
 
-We only submit the core cooperation algorithm code (*cooperation.py*), other data processing codes will be submitted if requested.
+We only submit the core cooperation algorithm code (*cooperation.py*), the data processing codes will be submitted if requested.
 
 
 [Alibaba Tianchi]:https://tianchi.aliyun.com/dataset/76359
