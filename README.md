@@ -1,6 +1,6 @@
 # Cooperative Delivery
 
-This project provides the main code for the IEEE ICDE 2024 Second Round submission 1548 entitled *Cooperative Air-Ground Instant Delivery by UAVs and Crowdsourced Taxis*.
+This project provides the main code for the IEEE ICDE 2024 Second Round Submission 1548 entitled *Cooperative Air-Ground Instant Delivery by UAVs and Crowdsourced Taxis*.
 ***
 
 **Highlighted Features**
