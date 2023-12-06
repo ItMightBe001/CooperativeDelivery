@@ -314,7 +314,7 @@ def gridBelonging():
 
 
 def cooperativeDelivery():
-    def UAVinBaseStatus():       # note 这个有意义吗？ 因为这只能统计当前slot的无人机情况，偶然误差很大
+    def UAVinBaseStatus():
         # 统计当前时刻每个基站中无人机的空闲程度
         UAVNumInBase = np.zeros((baseNum,),dtype=int)       # 记录每个基站无人机的数量
         BusyUAVInBase = np.zeros((baseNum,),dtype=int)       # 记录每个基站外出无人机的数量
@@ -355,7 +355,7 @@ def cooperativeDelivery():
                     taxiNo = trip[0]
                     pickLon = trip[2]
                     pickLat = trip[3]
-                    if cal_distance(pickLon, pickLat, deliStartLon, deliStartLat) <= 1:  # 相邻的正方向4个grid都可接受
+                    if cal_distance(pickLon, pickLat, deliStartLon, deliStartLat) <= 1:
                         dropTime = trip[4]
                         dropLon = trip[5]
                         dropLat = trip[6]
@@ -367,8 +367,6 @@ def cooperativeDelivery():
                             distToTripDirect = dis_point_to_seg_line([deliEndLon, deliEndLat], [pickLon, pickLat],
                                                                      [dropLon, dropLat])
                             if distToTripDirect <= distTripDirect / 2:
-                                # 若外卖终点落在以trip起止点为斜边的正三角形范围内就简单地认为可以中途送达，
-                                # 因为trip的轨迹应在trip起止点线段至以起止点为直角边的三角形之间
                                 detourDistSimplified = (cal_distance(deliStartLon, deliStartLat, pickLon, pickLat)
                                                         + distToTripDirect)
                                 availableTripList_Re.append(
@@ -404,7 +402,7 @@ def cooperativeDelivery():
                         # 因为在available trip的判断上已经卡过绕路距离了，这里再卡一下空车概率即可
                         gridTripCapacityLack[deliStartLon][deliStartLat][nowSlot] += 1
                     if detourDist == 0:
-                        detourDist = 0.1        # 对于起终点都不绕路的情况，假定绕路1km以防止0作除数
+                        detourDist = 0.1        # 对于起终点都不绕路的情况，假定绕路0.1km以防止0作除数
                     entropy = taxiLeisureProbability / detourDist
                     entropyList[deliStartLon][deliStartLat].append(entropy)  # 将该订单的entropy存到list里
                     tripSlot = availableTrip[5]
@@ -419,7 +417,7 @@ def cooperativeDelivery():
             for y in range(80):
                 if len(entropyList[x][y]) > 0:
                     entropyMap[x][y] = sum(entropyList[x][y]) / len(entropyList[x][y])
-        # 以上完成了各grid entropy的计算，下面计算K值，并进行聚类，从而确定repositionning的方向
+        # 以上完成了各grid entropy的计算，下面确定repositionning的方向
 
         # 直接利用每个基站运力的缺口计算调度的方向
         baseUAVRemain = []  # 存放每个base对UAV需求的数量，可正可负，正表示缺n架，负表示余-n架，数值为30个slot里的最大值
