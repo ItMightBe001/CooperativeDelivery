@@ -523,8 +523,10 @@ def cooperativeDelivery():
             # print("now is", slot, allRepositionedUAVNum)
             UAVinBaseStatus()
         updateUAVStatus(slot)
-
+        deliveryNum_thisSlot = len(actualDeliveryList[slot])        # the  number of instant parcels during this time slot
+        deliveredByUAVs = 0         # the number of instant parcels delivered by UAVs during this time slot
         for delivery in actualDeliveryList[slot]:
+            taxiCapacityEfficient = (deliveryNum_thisSlot-deliveredByUAVs) / deliveryNum_thisSlot
             deliStartTime = slot
             deliStartLon = delivery[2]
             deliStartLat = delivery[3]
@@ -533,7 +535,7 @@ def cooperativeDelivery():
             deliEndLat = delivery[5]
 
             availableTripList = []  # 存放可以用于配送该包裹的所有trip数据
-            for tripSlot in range(max(0, slot - 1), min(slotNum, slot + PTL)):
+            for tripSlot in range(max(0, slot - 1), min(slotNum, int(slot + PTL * taxiCapacityEfficient))):
                 # note. Temporal Match: 发生delivery前1分钟与后5分钟的所有订单
                 # ↑基于认知：网约车都提前3-5分钟下单
                 for trip in tripList[tripSlot]:
@@ -562,14 +564,14 @@ def cooperativeDelivery():
 
                     # 判断中途送达的可能
                     modeC = 0
-                    if detourTimeOrigin <= originTime_in:
+                    if detourTimeOrigin <= originTime_in * taxiCapacityEfficient:
                         dropTime = trip[4]
                         wpInTrip = taxiTraj[tripSlot:dropTime + 1]
                         for wpIndex in range(len(wpInTrip)):
                             wpLon = wpInTrip[wpIndex][3]
                             wpLat = wpInTrip[wpIndex][4]
                             # 中途配送允许绕路距离
-                            if distance_coefficient * cal_distance(wpLon, wpLat, deliEndLon, deliEndLat) <= destTime_in * avgSpeed:
+                            if distance_coefficient * cal_distance(wpLon, wpLat, deliEndLon, deliEndLat) <= destTime_in * taxiCapacityEfficient * avgSpeed:
                                 wpTime = wpInTrip[wpIndex][2]
                                 deliTimeDest = distance_coefficient * cal_distance(wpLon, wpLat, deliEndLon,
                                                             deliEndLat) / avgSpeed  # 送达外卖的单程时间
@@ -595,7 +597,7 @@ def cooperativeDelivery():
                     detourDest = distance_coefficient * cal_distance(wpNoDeliLon, wpNoDeliLat, deliEndLon, deliEndLat)  # 送达外卖后出租车直接返回本应出现的点
                     detourTimeDest = detourDest / avgSpeed
                     detourTimeSum = detourTimeOrigin + detourTimeDest
-                    if detourTimeOrigin <= originTime_OD and detourDest <= destTime_OD:  # 起点终点送达
+                    if detourTimeOrigin <= originTime_OD * taxiCapacityEfficient and detourDest <= destTime_OD * taxiCapacityEfficient:  # 起点终点送达
                         # 用if是因为有的订单可能会进上面的if，但实际上应由起点终点送达。
                         # 起点终点送达放下面是因为中途送达更快，因此判断的优先级更高
                         deliveryTime = detourTimeOrigin + deliDestTime + taxiDropSlot - tripSlot  # 起点绕路 + 终点绕路 + trip时长 -> delivery time
@@ -629,6 +631,7 @@ def cooperativeDelivery():
                                         + cal_distance(deliStartLon, deliStartLat, deliEndLon, deliEndLat)) / UAVSpeed
                         UAVInfo = [UAV[0], deliveryTime, timeConsumption]
                         availableUAVList.append(UAVInfo)
+                        deliveredByUAVs += 1
             availableUAVList.sort(key=lambda x: x[1])  # 按delivery time升序排序
             if len(availableUAVList) > 0:
                 bestUAV = availableUAVList[0]
@@ -663,6 +666,7 @@ def cooperativeDelivery():
                 UAVList[UAVNo] = UAVList[UAVNo][:2] + [deliEndLon, deliEndLat, energyAfterDelivery, 0,
                                                        deliStartTime + deliveryTime, deliStartTime + timeConsumption,
                                                        deliEndLon, deliEndLat]
+                deliveredByUAVs += 1
             elif len(bestTrip) > 0 and len(bestUAV) > 0:  # 既有无人机也有出租车能配送
                 taxiDetourTime = bestTrip[2]
                 UAVTimeConsumption = bestUAV[2]
@@ -696,6 +700,7 @@ def cooperativeDelivery():
                                                            deliStartTime + deliveryTime,
                                                            deliStartTime + timeConsumption,
                                                            deliEndLon, deliEndLat]
+                    deliveredByUAVs += 1
             else:
                 # 既没有出租车配送，也没有无人机配送，则判断是否有空车可以配送
                 if allowFreeDelivery == 0:          # 不允许空车配送时直接continue
